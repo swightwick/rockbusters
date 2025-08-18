@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Info, Volume2, VolumeX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw, Info, Volume2, VolumeX, Menu, X } from 'lucide-react';
 import { gsap } from 'gsap';
 import './App.css';
 
@@ -1464,6 +1464,7 @@ const RockbustersQuiz = () => {
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
   const karlHeadRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -1985,6 +1986,71 @@ const RockbustersQuiz = () => {
         </div>
       )}
 
+      {/* Off-canvas Menu */}
+      <>
+        {/* Backdrop */}
+        <div 
+          className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${showMenu ? 'bg-opacity-50' : 'bg-opacity-0 pointer-events-none'}`}
+          onClick={() => setShowMenu(false)}
+        ></div>
+        
+        {/* Menu Panel */}
+        <div className={`fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${showMenu ? 'translate-x-0' : 'translate-x-full'}`}>
+          {/* Menu Header */}
+          <div className="flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 className="text-xl font-bold text-gray-800">Menu</h3>
+            <button 
+              onClick={() => setShowMenu(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+          
+          {/* Menu Items */}
+          <div className="p-6 space-y-4">
+            <button 
+              onClick={() => {
+                setShowInfoModal(true);
+                setShowMenu(false);
+              }}
+              className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+            >
+              <Info className="w-5 h-5 text-blue-500" />
+              <span className="text-gray-800 font-medium">Info</span>
+            </button>
+            
+            <button 
+              onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+              className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+            >
+              {isSoundEnabled ? (
+                <>
+                  <Volume2 className="w-5 h-5 text-green-500" />
+                  <span className="text-gray-800 font-medium">Turn Sound Off</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-5 h-5 text-red-500" />
+                  <span className="text-gray-800 font-medium">Turn Sound On</span>
+                </>
+              )}
+            </button>
+            
+            <button 
+              onClick={() => {
+                resetQuiz();
+                setShowMenu(false);
+              }}
+              className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+            >
+              <RotateCcw className="w-5 h-5 text-red-500" />
+              <span className="text-gray-800 font-medium">Reset Game</span>
+            </button>
+          </div>
+        </div>
+      </>
+
       <div className="bg-white rounded-2xl shadow-xl border border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full">
         {/* Header */}
         <div className="text-center mb-2 md:mb-4">
@@ -1999,15 +2065,23 @@ const RockbustersQuiz = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowInfoModal(true)} type="button" className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors">
-                <Info className="w-4 h-4" />
-              </button>
-              <button onClick={() => setIsSoundEnabled(!isSoundEnabled)} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors">
-                {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              </button>
-              <button onClick={resetQuiz} type="button" className="bg-red-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-red-600 transition-colors">
-                <RotateCcw className="w-4 h-4" />
-                <span className="hidden md:inline">Reset</span>
+              {/* Desktop buttons */}
+              <div className="hidden md:flex gap-2">
+                <button onClick={() => setShowInfoModal(true)} type="button" className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors">
+                  <Info className="w-4 h-4" />
+                </button>
+                <button onClick={() => setIsSoundEnabled(!isSoundEnabled)} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors">
+                  {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </button>
+                <button onClick={resetQuiz} type="button" className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-red-600 transition-colors">
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </button>
+              </div>
+              
+              {/* Mobile hamburger menu */}
+              <button onClick={() => setShowMenu(true)} type="button" className="md:hidden text-black hover:text-gray-600 transition-colors">
+                <Menu className="w-8 h-8" />
               </button>
             </div>
           </div>
