@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw, Info, Volume2, VolumeX } from 'lucide-react';
 import { gsap } from 'gsap';
 import './App.css';
+
+// Target number of correct answers to win - change this for debugging
+const TARGET_CORRECT_ANSWERS = 5;
 
 const RockbustersQuiz = () => {
   // Shuffle array function
@@ -1453,12 +1456,14 @@ const RockbustersQuiz = () => {
   const [score, setScore] = useState(savedData.score);
   const [answeredQuestions, setAnsweredQuestions] = useState(savedData.answeredQuestions);
   const [skippedQuestions, setSkippedQuestions] = useState(savedData.skippedQuestions);
+  const [revealedQuestions, setRevealedQuestions] = useState(new Set());
   const [totalAttempts, setTotalAttempts] = useState(savedData.totalAttempts || 0);
   const [showResults, setShowResults] = useState(false);
   const [showCorrectModal, setShowCorrectModal] = useState(false);
   const [revealedAnswer, setRevealedAnswer] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const karlHeadRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -1527,8 +1532,10 @@ const RockbustersQuiz = () => {
       setAnsweredQuestions(newAnswered);
       setTotalAttempts(newAttempts);
       
-      // Check if we've reached 20 correct answers (win condition)
-      if (newScore >= 20) {
+      // Check if we've reached target correct answers (win condition)
+      if (newScore >= TARGET_CORRECT_ANSWERS) {
+        // Play correct sound when quiz is completed
+        playCorrectSound();
         setShowResults(true);
         localStorage.removeItem('rockbusters-progress');
         return;
@@ -1551,8 +1558,8 @@ const RockbustersQuiz = () => {
         { 
           scale: 1, 
           rotation: 360, 
-          duration: 1.5, 
-          ease: "bounce.out",
+          duration: 2, 
+          ease: "elastic.out",
           delay: 0.3
         }
       );
@@ -1727,6 +1734,9 @@ const RockbustersQuiz = () => {
   };
 
   const skipQuestion = () => {
+    // Play skip sound
+    playSkipSound();
+    
     const newSkipped = new Set([...skippedQuestions, currentQuestion]);
     const newAttempts = totalAttempts + 1;
     
@@ -1751,6 +1761,7 @@ const RockbustersQuiz = () => {
     setScore(0);
     setAnsweredQuestions(new Set());
     setSkippedQuestions(new Set());
+    setRevealedQuestions(new Set());
     setTotalAttempts(0);
     setShowResults(false);
     setShowCorrectModal(false);
@@ -1761,6 +1772,9 @@ const RockbustersQuiz = () => {
   };
 
   const closeWelcomeModal = () => {
+    // Play welcome sound
+    playWelcomeSound();
+    
     setShowWelcomeModal(false);
     
     // Focus input after welcome modal closes
@@ -1782,7 +1796,50 @@ const RockbustersQuiz = () => {
     }, 100);
   };
 
+  const playRandomRevealSound = () => {
+    if (!isSoundEnabled) return;
+    const sounds = ['karl-what.mp3', 'karl-whats-that.mp3','karl-err.mp3'];
+    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+    const audio = new Audio(`/sounds/reveal/${randomSound}`);
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  };
+
+  const playCorrectSound = () => {
+    if (!isSoundEnabled) return;
+    const audio = new Audio('/sounds/correct/karl-hehey.wav');
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  };
+
+  const playSkipSound = () => {
+    if (!isSoundEnabled) return;
+    const sounds = ['karl-impress-more.mp3', 'karl-lot-words.mp3'];
+    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+    const audio = new Audio(`/sounds/skip/${randomSound}`);
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  };
+
+  const playWelcomeSound = () => {
+    if (!isSoundEnabled) return;
+    const audio = new Audio('/sounds/welcome/karl-alright.mp3');
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  };
+
   const revealAnswer = () => {
+    // Play random sound
+    playRandomRevealSound();
+    
+    // Track this question as revealed
+    const newRevealed = new Set([...revealedQuestions, currentQuestion]);
+    setRevealedQuestions(newRevealed);
+    
     // Set revealed flag first to prevent correct modal from showing
     setRevealedAnswer(true);
     setShowCorrectModal(false);
@@ -1822,7 +1879,7 @@ const RockbustersQuiz = () => {
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Rockbusters Complete!</h1>
           <div className="text-6xl font-bold text-indigo-600 mb-6">{totalAttempts}</div>
           <div className="mb-8">
-            <p className="text-xl mb-4">You got 20 correct answers in <strong>{totalAttempts}</strong> attempts!</p>
+            <p className="text-xl mb-4">You got {TARGET_CORRECT_ANSWERS} correct answers in <strong>{totalAttempts}</strong> attempts!</p>
             <p>
               {totalAttempts <= 25
                 ? "Outstanding! You're a true Rockbusters legend!" 
@@ -1833,7 +1890,7 @@ const RockbustersQuiz = () => {
                 : "Not bad! The clues don't work, right?"}
             </p>
             <p className="text-gray-600 font-medium">
-              Correct: {score} | Skipped: {skippedQuestions.size} | Wrong: {questions.length - score - skippedQuestions.size}
+              Correct: {score} | Skipped/Revealed: {skippedQuestions.size + revealedQuestions.size}
             </p>
           </div>
           <button onClick={resetQuiz} className="bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-3 mx-auto">
@@ -1852,7 +1909,7 @@ const RockbustersQuiz = () => {
         <div className="modal-overlay">
           <div className="modal-content welcome-modal">
             <img ref={karlHeadRef} src="/karl-head.png" alt="Karl Pilkington" className="w-20 md:w-32 mx-auto" />
-            <h2 className="text-2xl md:text-xl">Welcome to Rockbusters!</h2>
+            <h2 className="text-2xl md:text-4xl mt-0 md:mt-4">Welcome to Rockbusters!</h2>
 
             <div className="welcome-instructions">
               <p className="font-semibold text-gray-800 mb-2">How to play:</p>
@@ -1861,8 +1918,8 @@ const RockbustersQuiz = () => {
               <p>• Type your answer - first letters are prefilled</p>
               <p>• Click Skip if you're stuck, or Reveal to see the answer</p>
             </div>
-            <button onClick={closeWelcomeModal} className="next-button  py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 px-10">
-              Let's Rock!
+            <button onClick={closeWelcomeModal} className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 px-10">
+              Alright
             </button>
           </div>
         </div>
@@ -1918,6 +1975,7 @@ const RockbustersQuiz = () => {
               </a>
             </div>
             <button 
+              type="button"
               onClick={() => setShowInfoModal(false)} 
               className="w-full mt-6 py-2 bg-blue-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-blue-700"
             >
@@ -1927,37 +1985,40 @@ const RockbustersQuiz = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-xl border border-[#f2f2f2] p-4 md:p-8 max-w-4xl w-full h-screen md:h-full">
+      <div className="bg-white rounded-2xl shadow-xl border border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full">
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-y-4">
+        <div className="text-center mb-2 md:mb-4">
+          <div className="flex flex-row justify-between items-center mb-4 gap-y-4">
             <div className='flex flex-row items-center'>
               <img src="/karl-head.png" alt="Karl Pilkington" className="w-16 h-16 rounded-full object-cover ml-0 mr-2 md:mx-2  shadow-md" />
               <div className='flex flex-col items-start'>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-800 flex items-center">
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-800 flex items-center">
                   Rockbusters
                 </h1>
                 <span className='text-xs opacity-60'>AKA And the clues dont work</span>
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowInfoModal(true)} className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors">
+              <button onClick={() => setShowInfoModal(true)} type="button" className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors">
                 <Info className="w-4 h-4" />
               </button>
-              <button onClick={resetQuiz} className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-red-600 transition-colors">
+              <button onClick={() => setIsSoundEnabled(!isSoundEnabled)} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors">
+                {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              </button>
+              <button onClick={resetQuiz} type="button" className="bg-red-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-red-600 transition-colors">
                 <RotateCcw className="w-4 h-4" />
-                Reset
+                <span className="hidden md:inline">Reset</span>
               </button>
             </div>
           </div>
           <div className="flex justify-between items-center text-lg text-gray-600">
-            <span>Correct: {score}/20</span>
+            <span>Correct: {score}/{TARGET_CORRECT_ANSWERS}</span>
             <span>Attempts: {totalAttempts}</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
             <div 
               className="bg-indigo-600 h-2 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${(score / 20) * 100}%` }}
+              style={{ width: `${(score / TARGET_CORRECT_ANSWERS) * 100}%` }}
             ></div>
           </div>
         </div>
@@ -1984,6 +2045,8 @@ const RockbustersQuiz = () => {
           </div>
           <div 
             className="inline-block mb-2 mx-auto transition-all duration-200 cursor-text hover:border-gray-400 relative"
+            tabIndex={0}
+            role="button"
             onClick={() => {
               if (inputRef.current) {
                 inputRef.current.focus();
@@ -1999,6 +2062,26 @@ const RockbustersQuiz = () => {
                     });
                   }, delay);
                 }
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                if (inputRef.current) {
+                  inputRef.current.focus();
+                  
+                  // On mobile, scroll into view after keyboard appears
+                  if (window.innerWidth <= 768) {
+                    const delay = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 300 : 150;
+                    setTimeout(() => {
+                      inputRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                      });
+                    }, delay);
+                  }
+                }
+                e.preventDefault();
               }
             }}
           >
@@ -2035,21 +2118,26 @@ const RockbustersQuiz = () => {
           <div className="flex md:justify-center items-center gap-4 md:gap-4">
             <button
               onClick={skipQuestion}
-              className="w-full md:w-auto px-8 py-2 bg-orange-500 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-orange-600"
+              type="button"
+              disabled={revealedAnswer}
+              className="w-full md:w-auto px-8 py-3 bg-orange-500 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-orange-600 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
             >
               Skip
             </button>
             <button
               onClick={revealAnswer}
-              className="w-full md:w-auto px-8 py-2 bg-yellow-500 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-yellow-600"
+              type="button"
+              disabled={revealedAnswer}
+              className="w-full md:w-auto px-8 py-3 bg-yellow-500 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-yellow-600 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
             >
               Reveal
             </button>
             {/* On desktop, next button is here */}
             <button
               onClick={nextQuestion}
+              type="button"
               disabled={!isCurrentAnswerCorrect && !revealedAnswer}
-              className="hidden md:flex items-center gap-0 px-7 py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
+              className="hidden md:flex items-center gap-0 px-7 py-3 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
             >
               {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
               <ChevronRight className="w-4 h-4" />
@@ -2059,8 +2147,9 @@ const RockbustersQuiz = () => {
           <div className="flex justify-center items-center md:hidden">
             <button
               onClick={nextQuestion}
+              type="button"
               disabled={!isCurrentAnswerCorrect && !revealedAnswer}
-              className="flex items-center gap-0 px-7 py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed w-full text-center justify-center"
+              className="flex items-center gap-0 px-7 py-3 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed w-full text-center justify-center"
             >
               {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
               <ChevronRight className="w-4 h-4" />
