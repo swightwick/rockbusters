@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, RotateCcw, Info, Volume2, VolumeX, Menu, X } from 'lucide-react';
 import { gsap } from 'gsap';
+import { Helmet } from 'react-helmet-async';
+import { 
+  trackQuizStart, 
+  trackQuizComplete, 
+  trackQuestionAnswer, 
+  trackQuestionSkip, 
+  trackQuestionReveal, 
+  trackSoundToggle, 
+  trackQuizReset 
+} from './utils/analytics';
 import './App.css';
 
 // Target number of correct answers to win - change this for debugging
-const TARGET_CORRECT_ANSWERS = 5;
+const TARGET_CORRECT_ANSWERS = 10;
 
 const RockbustersQuiz = () => {
   // Shuffle array function
@@ -1489,9 +1499,30 @@ const RockbustersQuiz = () => {
   const correctAnswer = currentQ?.answer?.toLowerCase() || '';
   const userInput = userAnswer.toLowerCase();
   
+  // Dynamic SEO content based on current state
+  const getDynamicTitle = () => {
+    if (showResults) {
+      return `Quiz Complete! Score: ${score}/${TARGET_CORRECT_ANSWERS} - Rockbusters Quiz`;
+    }
+    if (currentQ) {
+      return `Question ${currentQuestion + 1}: ${currentQ.initials} - Rockbusters Quiz`;
+    }
+    return 'Rockbusters Quiz - Test Your Knowledge with Karl Pilkington\'s Cryptic Clues';
+  };
+
+  const getDynamicDescription = () => {
+    if (showResults) {
+      return `Quiz completed with ${score} correct answers out of ${TARGET_CORRECT_ANSWERS} in ${totalAttempts} attempts. Challenge yourself with Karl Pilkington's cryptic music clues!`;
+    }
+    if (currentQ) {
+      return `Current clue: "${currentQ.question}" (${currentQ.initials}). Can you guess this artist or band from Karl Pilkington's cryptic clue?`;
+    }
+    return 'Play the ultimate Rockbusters quiz featuring Karl Pilkington\'s infamous cryptic clues from The Ricky Gervais Show. Test your music knowledge with over 400 questions!';
+  };
+  
   // Get the full answer including prefilled initials
   const getCompleteAnswer = () => {
-    if (!currentQ) return '';
+    if (!currentQ || !currentQ.initials) return '';
     const initials = currentQ.initials.toLowerCase();
     const words = correctAnswer.split(' ');
     let completeAnswer = '';
@@ -1533,14 +1564,22 @@ const RockbustersQuiz = () => {
       setAnsweredQuestions(newAnswered);
       setTotalAttempts(newAttempts);
       
+      // Play sound for individual correct answer
+      playIndividualCorrectSound();
+      
       // Check if we've reached target correct answers (win condition)
       if (newScore >= TARGET_CORRECT_ANSWERS) {
         // Play correct sound when quiz is completed
         playCorrectSound();
+        // Track quiz completion
+        trackQuizComplete(newScore, newAttempts);
         setShowResults(true);
         localStorage.removeItem('rockbusters-progress');
         return;
       }
+      
+      // Track correct answer
+      trackQuestionAnswer(currentQuestion + 1, true, 1);
       
       // Add a slight delay before showing the modal for better UX
       setTimeout(() => {
@@ -1738,6 +1777,9 @@ const RockbustersQuiz = () => {
     // Play skip sound
     playSkipSound();
     
+    // Track skip
+    trackQuestionSkip(currentQuestion + 1);
+    
     const newSkipped = new Set([...skippedQuestions, currentQuestion]);
     const newAttempts = totalAttempts + 1;
     
@@ -1757,6 +1799,9 @@ const RockbustersQuiz = () => {
   };
 
   const resetQuiz = () => {
+    // Track quiz reset
+    trackQuizReset();
+    
     setCurrentQuestion(0);
     setUserAnswer('');
     setScore(0);
@@ -1775,6 +1820,9 @@ const RockbustersQuiz = () => {
   const closeWelcomeModal = () => {
     // Play welcome sound
     playWelcomeSound();
+    
+    // Track quiz start
+    trackQuizStart();
     
     setShowWelcomeModal(false);
     
@@ -1799,9 +1847,17 @@ const RockbustersQuiz = () => {
 
   const playRandomRevealSound = () => {
     if (!isSoundEnabled) return;
-    const sounds = ['karl-what.mp3', 'karl-whats-that.mp3','karl-err.mp3'];
+    const sounds = ['karl-whats-that.mp3', 'karl-err.mp3', 'karl-look-at-it.mp3', 'karl-its-awkward.mp3', 'karl-who-are-you.mp3'];
     const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
     const audio = new Audio(`/sounds/reveal/${randomSound}`);
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  };
+
+  const playIndividualCorrectSound = () => {
+    if (!isSoundEnabled) return;
+    const audio = new Audio('/sounds/correct/correct.mp3');
     audio.play().catch(error => {
       console.log('Audio playback failed:', error);
     });
@@ -1817,7 +1873,7 @@ const RockbustersQuiz = () => {
 
   const playSkipSound = () => {
     if (!isSoundEnabled) return;
-    const sounds = ['karl-impress-more.mp3', 'karl-lot-words.mp3'];
+    const sounds = ['karl-what.mp3', 'karl-lot-words.mp3', 'karl-dont-wanna-know.mp3', 'karl-ildas-dead.mp3'];
     const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
     const audio = new Audio(`/sounds/skip/${randomSound}`);
     audio.play().catch(error => {
@@ -1837,6 +1893,9 @@ const RockbustersQuiz = () => {
     // Play random sound
     playRandomRevealSound();
     
+    // Track reveal
+    trackQuestionReveal(currentQuestion + 1);
+    
     // Track this question as revealed
     const newRevealed = new Set([...revealedQuestions, currentQuestion]);
     setRevealedQuestions(newRevealed);
@@ -1849,7 +1908,7 @@ const RockbustersQuiz = () => {
     const newAttempts = totalAttempts + 1;
     setTotalAttempts(newAttempts);
     
-    if (!currentQ) return;
+    if (!currentQ || !currentQ.initials) return;
     
     // Calculate what the user should type (excluding prefilled initials and spaces)
     const initials = currentQ.initials.toLowerCase();
@@ -1875,8 +1934,8 @@ const RockbustersQuiz = () => {
 
   if (showResults) {
     return (
-      <div className="min-h-screen bg-head-pattern bg-repeat flex items-center justify-center md:p-4">
-        <div className="bg-white md:rounded-2xl md:shadow-lg p-4 md:p-8 max-w-2xl w-full text-center">
+      <div className="min-h-screen bg-head-pattern bg-repeat flex items-center justify-center p-4">
+        <div className="bg-white border md:border-0 rounded-2xl shadow-lg p-8 max-w-2xl w-full text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Rockbusters Complete!</h1>
           <div className="text-6xl font-bold text-indigo-600 mb-6">{totalAttempts}</div>
           <div className="mb-8">
@@ -1894,7 +1953,7 @@ const RockbustersQuiz = () => {
               Correct: {score} | Skipped/Revealed: {skippedQuestions.size + revealedQuestions.size}
             </p>
           </div>
-          <button onClick={resetQuiz} className="bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-3 mx-auto">
+          <button type="button" onClick={resetQuiz} className="bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-3 mx-auto">
             <RotateCcw className="w-5 h-5" />
             Play Again
           </button>
@@ -1904,7 +1963,17 @@ const RockbustersQuiz = () => {
   }
 
   return (
-    <div className="min-h-screen bg-head-pattern bg-repeat flex items-center justify-center md:p-4">
+    <>
+      <Helmet>
+        <title>{getDynamicTitle()}</title>
+        <meta name="description" content={getDynamicDescription()} />
+        <meta property="og:title" content={getDynamicTitle()} />
+        <meta property="og:description" content={getDynamicDescription()} />
+        <meta property="twitter:title" content={getDynamicTitle()} />
+        <meta property="twitter:description" content={getDynamicDescription()} />
+        {showResults && <meta name="robots" content="noindex" />}
+      </Helmet>
+      <div className="min-h-screen bg-head-pattern bg-repeat flex items-center justify-center md:p-4">
       {/* Welcome Modal */}
       {showWelcomeModal && (
         <div className="modal-overlay">
@@ -1919,7 +1988,7 @@ const RockbustersQuiz = () => {
               <p>• Type your answer - first letters are prefilled</p>
               <p>• Click Skip if you're stuck, or Reveal to see the answer</p>
             </div>
-            <button onClick={closeWelcomeModal} className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 px-10">
+            <button type="button" onClick={closeWelcomeModal} className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 px-10">
               Alright
             </button>
           </div>
@@ -1936,7 +2005,7 @@ const RockbustersQuiz = () => {
             {currentQ?.sound && (
               <p className="sound-reveal">Karls pronounciation: <em>{currentQ.sound}</em></p>
             )}
-            <button onClick={nextQuestion} className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 w-full mt-4">
+            <button type="button" onClick={nextQuestion} className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 w-full mt-4">
               {currentQuestion === questions.length - 1 ? 'See Results' : 'Next Question'}
             </button>
           </div>
@@ -2000,6 +2069,7 @@ const RockbustersQuiz = () => {
           <div className="flex justify-between items-center p-6 border-b border-gray-200">
             <h3 className="text-xl font-bold text-gray-800">Menu</h3>
             <button 
+              type="button"
               onClick={() => setShowMenu(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
@@ -2010,6 +2080,7 @@ const RockbustersQuiz = () => {
           {/* Menu Items */}
           <div className="p-6 space-y-4">
             <button 
+              type="button"
               onClick={() => {
                 setShowInfoModal(true);
                 setShowMenu(false);
@@ -2021,7 +2092,12 @@ const RockbustersQuiz = () => {
             </button>
             
             <button 
-              onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+              type="button"
+              onClick={() => {
+                const newSoundState = !isSoundEnabled;
+                setIsSoundEnabled(newSoundState);
+                trackSoundToggle(newSoundState);
+              }}
               className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
             >
               {isSoundEnabled ? (
@@ -2038,6 +2114,7 @@ const RockbustersQuiz = () => {
             </button>
             
             <button 
+              type="button"
               onClick={() => {
                 resetQuiz();
                 setShowMenu(false);
@@ -2070,7 +2147,11 @@ const RockbustersQuiz = () => {
                 <button onClick={() => setShowInfoModal(true)} type="button" className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors">
                   <Info className="w-4 h-4" />
                 </button>
-                <button onClick={() => setIsSoundEnabled(!isSoundEnabled)} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors">
+                <button onClick={() => {
+                  const newSoundState = !isSoundEnabled;
+                  setIsSoundEnabled(newSoundState);
+                  trackSoundToggle(newSoundState);
+                }} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors">
                   {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                 </button>
                 <button onClick={resetQuiz} type="button" className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-red-600 transition-colors">
@@ -2231,7 +2312,8 @@ const RockbustersQuiz = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
