@@ -1472,11 +1472,14 @@ const RockbustersQuiz = () => {
   const [showCorrectModal, setShowCorrectModal] = useState(false);
   const [revealedAnswer, setRevealedAnswer] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizVisible, setQuizVisible] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const karlHeadRef = useRef(null);
   const inputRef = useRef(null);
+  const correctModalButtonRef = useRef(null);
 
   // Save progress to localStorage
   const saveProgress = (questionIndex, newScore, answered, skipped, attempts) => {
@@ -1630,6 +1633,35 @@ const RockbustersQuiz = () => {
     
     return () => clearTimeout(timer);
   }, [currentQuestion, showWelcomeModal, showCorrectModal, showResults]);
+
+  // Handle space key press for correct answer modal
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (showCorrectModal && event.code === 'Space') {
+        event.preventDefault();
+        // Trigger the button click instead of calling nextQuestion directly
+        if (correctModalButtonRef.current) {
+          correctModalButtonRef.current.click();
+        }
+      }
+    };
+
+    if (showCorrectModal) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [showCorrectModal]);
+
+  // Focus the correct modal button when modal opens
+  useEffect(() => {
+    if (showCorrectModal && correctModalButtonRef.current) {
+      setTimeout(() => {
+        correctModalButtonRef.current.focus();
+      }, 100);
+    }
+  }, [showCorrectModal]);
 
   const getExpectedAnswer = () => {
     if (!currentQ) return '';
@@ -1813,6 +1845,8 @@ const RockbustersQuiz = () => {
     setShowCorrectModal(false);
     setRevealedAnswer(false);
     setShowWelcomeModal(false);
+    setShowQuiz(true);
+    setQuizVisible(true);
     // Clear saved progress
     localStorage.removeItem('rockbusters-progress');
   };
@@ -1825,6 +1859,15 @@ const RockbustersQuiz = () => {
     trackQuizStart();
     
     setShowWelcomeModal(false);
+    
+    // Show quiz container first, then fade it in
+    setTimeout(() => {
+      setShowQuiz(true);
+      // Small delay to ensure DOM is ready, then fade in
+      setTimeout(() => {
+        setQuizVisible(true);
+      }, 50);
+    }, 100);
     
     // Focus input after welcome modal closes
     setTimeout(() => {
@@ -2005,7 +2048,12 @@ const RockbustersQuiz = () => {
             {currentQ?.sound && (
               <p className="sound-reveal">Karls pronounciation: <em>{currentQ.sound}</em></p>
             )}
-            <button type="button" onClick={nextQuestion} className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 w-full mt-4">
+            <button 
+              ref={correctModalButtonRef}
+              type="button" 
+              onClick={nextQuestion} 
+              className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 w-full mt-4"
+            >
               {currentQuestion === questions.length - 1 ? 'See Results' : 'Next Question'}
             </button>
           </div>
@@ -2128,7 +2176,8 @@ const RockbustersQuiz = () => {
         </div>
       </>
 
-      <div className="bg-white rounded-2xl shadow-xl border border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full">
+      {showQuiz && (
+        <div className={`bg-white rounded-2xl shadow-xl border border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full transition-opacity duration-500 ${quizVisible ? 'opacity-100' : 'opacity-0'}`}>
         {/* Header */}
         <div className="text-center mb-2 md:mb-4">
           <div className="flex flex-row justify-between items-center mb-4 gap-y-4">
@@ -2312,6 +2361,7 @@ const RockbustersQuiz = () => {
           </div>
         </div>
       </div>
+      )}
       </div>
     </>
   );
