@@ -107,7 +107,7 @@ const RockbustersQuiz = () => {
   {
     "question": "How can I wash up in something shaped like that?",
     "initials": "NS",
-    "answer": "N-Sync",
+    "answer": "NSync",
     "sound": "N sink",
     "series": "xfm series 2",
     "rockbusters": "2",
@@ -139,7 +139,7 @@ const RockbustersQuiz = () => {
   },
   {
     "question": "I don't like them birds; they shouldn't be allowed in this area.",
-    "initials": "B",
+    "initials": "TB",
     "answer": "The Bangles",
     "sound": "ban gulls",
     "series": "xfm series 2",
@@ -228,7 +228,7 @@ const RockbustersQuiz = () => {
   {
     "question": "That Scottish fella has made an error.",
     "initials": "M",
-    "answer": "Mis-Teeq",
+    "answer": "MisTeeq",
     "sound": "mistake",
     "series": "xfm series 2",
     "rockbusters": "7",
@@ -279,7 +279,7 @@ const RockbustersQuiz = () => {
   {
     "question": "That woman's got her husbands gloves and a pair of her own.",
     "initials": "HH",
-    "answer": "Herman's Hermits",
+    "answer": "Hermans Hermits",
     "sound": "her man's, her mitts",
     "series": "xfm series 2",
     "rockbusters": "9",
@@ -323,7 +323,7 @@ const RockbustersQuiz = () => {
   {
     "question": "42 pounds for a torch? That's a bit pricey innit?",
     "initials": "D",
-    "answer": "Deee-Lite",
+    "answer": "DeeeLite",
     "sound": "dear light",
     "series": "xfm series 2",
     "rockbusters": "11",
@@ -443,14 +443,6 @@ const RockbustersQuiz = () => {
     "date": "01 February 2003"
   },
   {
-    "question": "Audio clip of a dog being beaten.",
-    "initials": null,
-    "answer": "Smack my Bitch Up",
-    "series": "xfm series 2",
-    "rockbusters": "15",
-    "date": "01 February 2003"
-  },
-  {
     "question": "Well, if he would've been wearing a helmet he'd have been alright.",
     "initials": "B",
     "answer": "Busted",
@@ -464,14 +456,6 @@ const RockbustersQuiz = () => {
     "initials": "DS",
     "answer": "Detroit Spinners",
     "sound": "de trout spinners",
-    "series": "xfm series 2",
-    "rockbusters": "16",
-    "date": "08 February 2003"
-  },
-  {
-    "question": "Audio clip of a woman screaming, followed by a baby crying and a loud 'splat' sound.",
-    "initials": null,
-    "answer": "Born Slippy",
     "series": "xfm series 2",
     "rockbusters": "16",
     "date": "08 February 2003"
@@ -515,7 +499,7 @@ const RockbustersQuiz = () => {
   {
     "question": "These people from the East Midlands swear a lot.",
     "initials": "TTD",
-    "answer": "Terence Trent D'arby",
+    "answer": "Terence Trent Darby",
     "sound": "Tourette's Trent Derby",
     "series": "xfm series 2",
     "rockbusters": "18",
@@ -744,7 +728,7 @@ const RockbustersQuiz = () => {
   {
     "question": "All the police cars are on fire.",
     "initials": "BS",
-    "answer": "Blazin' Squad",
+    "answer": "Blazin Squad",
     "series": "xfm series 2",
     "rockbusters": "27",
     "date": "05 July 2003"
@@ -1367,7 +1351,7 @@ const RockbustersQuiz = () => {
   {
     "question": "This group sound like dinosaurs.",
     "initials": "TR",
-    "answer": "T. Rex",
+    "answer": "T Rex",
     "series": "Karl's Mam",
     "rockbusters": "7",
     "date": "23 November 2002"
