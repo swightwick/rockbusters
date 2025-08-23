@@ -1466,6 +1466,20 @@ const RockbustersQuiz = () => {
   const inputRef = useRef(null);
   const correctModalButtonRef = useRef(null);
 
+  // Lock body scroll when info modal is open
+  useEffect(() => {
+    if (showInfoModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showInfoModal]);
+
   // Save progress to localStorage
   const saveProgress = useCallback((questionIndex, newScore, answered, skipped, attempts) => {
     try {
@@ -2062,17 +2076,18 @@ const RockbustersQuiz = () => {
                   href="https://www.buymeacoffee.com/sjw87"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 rounded-lg shadow font-bold border border-gray-100 text-black hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center px-4 py-3 rounded-lg shadow font-bold border border-gray-100 text-black hover:bg-gray-100 transition-colors"
                 >
                   <span role="img" aria-label="coffee" className="mr-2">☕</span>
                   Buy me a coffee
                 </a>
               </div>
             </div>
+            <hr className="mb-0 mt-6 md:hidden" />
             <button 
               type="button"
               onClick={() => setShowInfoModal(false)} 
-              className="w-full mt-6 py-2 bg-blue-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-blue-700"
+              className="w-full mt-6 py-3 bg-blue-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-blue-700"
             >
               Alright, cheers
             </button>
@@ -2153,7 +2168,7 @@ const RockbustersQuiz = () => {
       </>
 
       {showQuiz && (
-        <div className={`bg-white md:rounded-2xl md:shadow-xl border md:border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full transition-opacity duration-500 ${quizVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`bg-white md:rounded-2xl md:shadow-xl md:border md:border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full transition-opacity duration-500 ${quizVisible ? 'opacity-100' : 'opacity-0'}`}>
         {/* Header */}
         <div className="text-center mb-2 md:mb-4">
           <div className="flex flex-row justify-between items-center mb-4 gap-y-4">
@@ -2163,10 +2178,10 @@ const RockbustersQuiz = () => {
                 <img src="/karl-head.png" alt="Karl Pilkington" className="w-16 h-16 rounded-full object-cover ml-0 mr-2 md:mx-2 shadow-md" />
               </picture>
               <div className='flex flex-col items-start'>
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-800 flex items-center">
+                <h1 className="text-2xl md:text-5xl font-bold text-gray-800 flex items-center">
                   Rockbusters
                 </h1>
-                <span className='text-xs opacity-60'>AKA And the clues dont work</span>
+                <span className='text-[11px] md:text-xs opacity-60'>AKA And the clues dont work</span>
               </div>
             </div>
             <div className="flex gap-2">

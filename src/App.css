@@ -139,6 +139,16 @@
   padding: 1rem;
   z-index: 50;
   animation: modalFadeIn 0.3s ease-out;
+  overflow-y: auto;
+}
+
+/* Mobile-specific modal overlay */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 1rem 1rem 2rem 1rem;
+    padding-top: env(safe-area-inset-top, 1rem);
+  }
 }
 
 .modal-content {
@@ -150,6 +160,17 @@
   width: 100%;
   text-align: center;
   animation: modalSlideIn 0.4s ease-out;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+
+/* Mobile-specific modal content */
+@media (max-width: 768px) {
+  .modal-content {
+    max-height: calc(100dvh - 2rem);
+    margin-top: 1rem;
+    padding: 1.5rem;
+  }
 }
 
 .welcome-modal {
