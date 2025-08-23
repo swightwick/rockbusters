@@ -1992,13 +1992,13 @@ const RockbustersQuiz = () => {
       <div className="min-h-screen bg-head-pattern bg-repeat flex items-center justify-center md:p-4">
       {/* Welcome Modal */}
       {showWelcomeModal && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
           <div className="modal-content welcome-modal">
             <picture>
               <source srcSet="/karl-head.webp" type="image/webp" />
               <img ref={karlHeadRef} src="/karl-head.png" alt="Karl Pilkington" className="w-20 md:w-32 mx-auto" />
             </picture>
-            <h2 className="text-2xl md:text-4xl mt-0 md:mt-4">Welcome to Rockbusters!</h2>
+            <h2 id="welcome-title" className="text-2xl md:text-4xl mt-0 md:mt-4">Welcome to Rockbusters!</h2>
 
             <div className="welcome-instructions">
               <p className="font-semibold text-gray-800 mb-2">How to play:</p>
@@ -2016,10 +2016,10 @@ const RockbustersQuiz = () => {
 
       {/* Correct Answer Modal */}
       {showCorrectModal && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="correct-title">
           <div className="modal-content">
             <div className="celebration">🎉</div>
-            <h2 className='font-bold text-2xl mb-1'>Correct!</h2>
+            <h2 id="correct-title" className='font-bold text-2xl mb-1'>Correct!</h2>
             <p className="answer-reveal">The answer was: <strong>{currentQ?.answer}</strong></p>
             {currentQ?.sound && (
               <p className="sound-reveal">Karls pronounciation: <em>{currentQ.sound}</em></p>
@@ -2038,11 +2038,11 @@ const RockbustersQuiz = () => {
 
       {/* Info Modal */}
       {showInfoModal && (
-        <div className="modal-overlay">
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="info-title">
           <div className="modal-content">
             <div className="text-center mb-4">
               <Info className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">About Rockbusters</h2>
+              <h2 id="info-title" className="text-2xl font-bold text-gray-800 mb-4">About Rockbusters</h2>
             </div>
             <div className="text-left space-y-4">
               <p className="text-gray-700 text-sm md:text-md">
@@ -2103,14 +2103,15 @@ const RockbustersQuiz = () => {
         ></div>
         
         {/* Menu Panel */}
-        <div className={`fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${showMenu ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${showMenu ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true" aria-labelledby="menu-title">
           {/* Menu Header */}
           <div className="flex justify-between items-center p-6 border-b border-gray-200">
-            <h3 className="text-xl font-bold text-gray-800">Menu</h3>
+            <h3 id="menu-title" className="text-xl font-bold text-gray-800">Menu</h3>
             <button 
               type="button"
               onClick={() => setShowMenu(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Close menu"
             >
               <X className="w-5 h-5 text-gray-600" />
             </button>
@@ -2174,8 +2175,8 @@ const RockbustersQuiz = () => {
           <div className="flex flex-row justify-between items-center mb-4 gap-y-4">
             <div className='flex flex-row items-center'>
               <picture>
-                <source srcSet="/karl-head.webp" type="image/webp" />
-                <img src="/karl-head.png" alt="Karl Pilkington" className="w-16 h-16 rounded-full object-cover ml-0 mr-2 md:mx-2 shadow-md" />
+                <source srcSet="/karl-head.webp" type="image/webp" width="64" height="64" />
+                <img src="/karl-head.png" alt="Karl Pilkington" width="64" height="64" className="w-16 h-16 rounded-full object-cover ml-0 mr-2 md:mx-2 shadow-md" />
               </picture>
               <div className='flex flex-col items-start'>
                 <h1 className="text-2xl md:text-5xl font-bold text-gray-800 flex items-center">
@@ -2187,14 +2188,14 @@ const RockbustersQuiz = () => {
             <div className="flex gap-2">
               {/* Desktop buttons */}
               <div className="hidden md:flex gap-2">
-                <button onClick={() => setShowInfoModal(true)} type="button" className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors">
+                <button onClick={() => setShowInfoModal(true)} type="button" className="bg-blue-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-blue-600 transition-colors" aria-label="Show game information">
                   <Info className="w-4 h-4" />
                 </button>
                 <button onClick={() => {
                   const newSoundState = !isSoundEnabled;
                   setIsSoundEnabled(newSoundState);
                   trackSoundToggle(newSoundState);
-                }} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors">
+                }} type="button" className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-1 hover:bg-green-600 transition-colors" aria-label={isSoundEnabled ? "Turn sound off" : "Turn sound on"}>
                   {isSoundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                 </button>
                 <button onClick={resetQuiz} type="button" className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-red-600 transition-colors">
@@ -2204,7 +2205,7 @@ const RockbustersQuiz = () => {
               </div>
               
               {/* Mobile hamburger menu */}
-              <button onClick={() => setShowMenu(true)} type="button" className="md:hidden text-black hover:text-gray-600 transition-colors">
+              <button onClick={() => setShowMenu(true)} type="button" className="md:hidden text-black hover:text-gray-600 transition-colors" aria-label="Open menu">
                 <Menu className="w-8 h-8" />
               </button>
             </div>
@@ -2244,7 +2245,8 @@ const RockbustersQuiz = () => {
           <div 
             className="inline-block mb-2 mx-auto transition-all duration-200 cursor-text hover:border-gray-400 relative"
             tabIndex={0}
-            role="button"
+            role="textbox"
+            aria-label={`Answer input for ${currentQ?.initials} clue`}
             onClick={() => {
               if (inputRef.current) {
                 inputRef.current.focus();
@@ -2292,6 +2294,7 @@ const RockbustersQuiz = () => {
               autoComplete="off"
               className="absolute top-0 left-0 w-full h-full opacity-0 bg-transparent border-none outline-none text-4xl p-0 m-0 z-10"
               autoFocus
+              aria-label={`Answer input for ${currentQ?.initials} clue`}
             />
             <div className="text-4xl font-mono tracking-wider min-h-16 flex flex-wrap items-center justify-center leading-tight relative pointer-events-none answer-input-mobile">
               {renderMergedInput()}

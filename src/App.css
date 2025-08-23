@@ -5,6 +5,8 @@
 .bg-head-pattern {
   background-image: url('./head-bg.png');
   background-repeat: repeat;
+  background-position: center;
+  background-size: 12%;
 }
 
 /* Character display for answer preview */
