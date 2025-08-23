@@ -2079,7 +2079,7 @@ const RockbustersQuiz = () => {
           </div>
         </div>
       )}
-      {/* Off-canvas Menu */}}
+      {/* Off-canvas Menu */}
       <>
         {/* Backdrop */}
         <div 
