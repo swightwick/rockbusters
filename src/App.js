@@ -2153,7 +2153,7 @@ const RockbustersQuiz = () => {
       </>
 
       {showQuiz && (
-        <div className={`bg-white rounded-2xl shadow-xl border border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full transition-opacity duration-500 ${quizVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`bg-white md:rounded-2xl md:shadow-xl border md:border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full transition-opacity duration-500 ${quizVisible ? 'opacity-100' : 'opacity-0'}`}>
         {/* Header */}
         <div className="text-center mb-2 md:mb-4">
           <div className="flex flex-row justify-between items-center mb-4 gap-y-4">
