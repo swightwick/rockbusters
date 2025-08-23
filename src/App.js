@@ -2053,6 +2053,21 @@ const RockbustersQuiz = () => {
               <a href="mailto:ricky.gervais@xfm.co.uk" className="text-blue-500 hover:underline mt-4 flex text-sm md:text-md">
                 Submit your question and answers here
               </a>
+              <p className="text-gray-700 text-sm md:text-md !mt-6">
+                <strong>Support the developer:</strong>
+              </p>
+              <div className="flex justify-center mt-4">
+                {/* Buy Me a Coffee Button */}
+                <a
+                  href="https://www.buymeacoffee.com/sjw87"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 rounded-lg shadow font-bold border border-gray-100 text-black hover:bg-gray-100 transition-colors"
+                >
+                  <span role="img" aria-label="coffee" className="mr-2">☕</span>
+                  Buy me a coffee
+                </a>
+              </div>
             </div>
             <button 
               type="button"
@@ -2064,8 +2079,7 @@ const RockbustersQuiz = () => {
           </div>
         </div>
       )}
-
-      {/* Off-canvas Menu */}
+      {/* Off-canvas Menu */}}
       <>
         {/* Backdrop */}
         <div 
