@@ -63,3 +63,36 @@ export const trackSoundToggle = (enabled) => {
 export const trackQuizReset = () => {
   trackEvent('quiz_reset', 'game');
 };
+
+// Performance monitoring
+export const trackPerformance = (metricName, value, unit = 'ms') => {
+  if (typeof window.gtag !== 'function') return;
+  
+  window.gtag('event', 'timing_complete', {
+    name: metricName,
+    value: Math.round(value),
+    event_category: 'performance',
+  });
+};
+
+// Web Vitals tracking
+export const trackWebVitals = (metric) => {
+  if (typeof window.gtag !== 'function') return;
+  
+  const { name, value } = metric;
+  
+  window.gtag('event', name, {
+    event_category: 'Web Vitals',
+    event_label: name,
+    value: Math.round(value),
+    non_interaction: true,
+  });
+};
+
+// Resource loading tracking
+export const trackResourceLoad = (resourceType, loadTime, resourceSize) => {
+  trackEvent('resource_load', 'performance', resourceType, Math.round(loadTime));
+  if (resourceSize) {
+    trackEvent('resource_size', 'performance', resourceType, Math.round(resourceSize / 1024)); // KB
+  }
+};

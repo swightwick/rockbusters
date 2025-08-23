@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Info, Volume2, VolumeX, Menu, X } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ChevronRight, RotateCcw, Info, Volume2, VolumeX, Menu, X } from 'lucide-react';
 import { gsap } from 'gsap';
 import { Helmet } from 'react-helmet-async';
 import { 
@@ -12,6 +12,7 @@ import {
   trackQuizReset 
 } from './utils/analytics';
 import './App.css';
+
 
 // Target number of correct answers to win - change this for debugging
 const TARGET_CORRECT_ANSWERS = 10;
@@ -1466,7 +1467,7 @@ const RockbustersQuiz = () => {
   const correctModalButtonRef = useRef(null);
 
   // Save progress to localStorage
-  const saveProgress = (questionIndex, newScore, answered, skipped, attempts) => {
+  const saveProgress = useCallback((questionIndex, newScore, answered, skipped, attempts) => {
     try {
       const progressData = {
         currentQuestion: questionIndex,
@@ -1480,7 +1481,24 @@ const RockbustersQuiz = () => {
     } catch (error) {
       console.error('Error saving progress:', error);
     }
-  };
+  }, [questionOrder]);
+
+  // Sound functions
+  const playIndividualCorrectSound = useCallback(() => {
+    if (!isSoundEnabled) return;
+    const audio = new Audio('/sounds/correct/correct.mp3');
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  }, [isSoundEnabled]);
+
+  const playCorrectSound = useCallback(() => {
+    if (!isSoundEnabled) return;
+    const audio = new Audio('/sounds/correct/karl-hehey.mp3');
+    audio.play().catch(error => {
+      console.log('Audio playback failed:', error);
+    });
+  }, [isSoundEnabled]);
 
   const currentQ = questions[questionOrder[currentQuestion]];
   const correctAnswer = currentQ?.answer?.toLowerCase() || '';
@@ -1575,7 +1593,7 @@ const RockbustersQuiz = () => {
       
       saveProgress(currentQuestion, newScore, newAnswered, skippedQuestions, newAttempts);
     }
-  }, [isCurrentAnswerCorrect, currentQuestion, answeredQuestions, score, skippedQuestions, revealedAnswer, totalAttempts]);
+  }, [isCurrentAnswerCorrect, currentQuestion, answeredQuestions, score, skippedQuestions, revealedAnswer, totalAttempts, playCorrectSound, playIndividualCorrectSound, saveProgress]);
 
   // Animate Karl's head when welcome modal shows
   useEffect(() => {
@@ -1647,34 +1665,6 @@ const RockbustersQuiz = () => {
     }
   }, [showCorrectModal]);
 
-  const getExpectedAnswer = () => {
-    if (!currentQ) return '';
-    const initials = currentQ.initials;
-    const words = correctAnswer.split(' ');
-    let expectedAnswer = '';
-    
-    for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
-      const word = words[wordIndex];
-      const isFirstWord = wordIndex === 0;
-      const isSecondWord = wordIndex === 1;
-      
-      if (wordIndex > 0) {
-        expectedAnswer += ' ';
-      }
-      
-      for (let letterIndex = 0; letterIndex < word.length; letterIndex++) {
-        if (isFirstWord && letterIndex === 0 && initials.length > 0) {
-          expectedAnswer += initials[0];
-        } else if (isSecondWord && letterIndex === 0 && initials.length > 1) {
-          expectedAnswer += initials[1];
-        } else {
-          expectedAnswer += '_';
-        }
-      }
-    }
-    
-    return expectedAnswer;
-  };
 
   const renderMergedInput = () => {
     if (!currentQ) return [];
@@ -1882,21 +1872,6 @@ const RockbustersQuiz = () => {
     });
   };
 
-  const playIndividualCorrectSound = () => {
-    if (!isSoundEnabled) return;
-    const audio = new Audio('/sounds/correct/correct.mp3');
-    audio.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-  };
-
-  const playCorrectSound = () => {
-    if (!isSoundEnabled) return;
-    const audio = new Audio('/sounds/correct/karl-hehey.wav');
-    audio.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-  };
 
   const playSkipSound = () => {
     if (!isSoundEnabled) return;
@@ -2005,7 +1980,10 @@ const RockbustersQuiz = () => {
       {showWelcomeModal && (
         <div className="modal-overlay">
           <div className="modal-content welcome-modal">
-            <img ref={karlHeadRef} src="/karl-head.png" alt="Karl Pilkington" className="w-20 md:w-32 mx-auto" />
+            <picture>
+              <source srcSet="/karl-head.webp" type="image/webp" />
+              <img ref={karlHeadRef} src="/karl-head.png" alt="Karl Pilkington" className="w-20 md:w-32 mx-auto" />
+            </picture>
             <h2 className="text-2xl md:text-4xl mt-0 md:mt-4">Welcome to Rockbusters!</h2>
 
             <div className="welcome-instructions">
@@ -2166,7 +2144,10 @@ const RockbustersQuiz = () => {
         <div className="text-center mb-2 md:mb-4">
           <div className="flex flex-row justify-between items-center mb-4 gap-y-4">
             <div className='flex flex-row items-center'>
-              <img src="/karl-head.png" alt="Karl Pilkington" className="w-16 h-16 rounded-full object-cover ml-0 mr-2 md:mx-2  shadow-md" />
+              <picture>
+                <source srcSet="/karl-head.webp" type="image/webp" />
+                <img src="/karl-head.png" alt="Karl Pilkington" className="w-16 h-16 rounded-full object-cover ml-0 mr-2 md:mx-2 shadow-md" />
+              </picture>
               <div className='flex flex-col items-start'>
                 <h1 className="text-3xl md:text-5xl font-bold text-gray-800 flex items-center">
                   Rockbusters

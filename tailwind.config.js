@@ -7,7 +7,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'mozilla': ['"Mozilla Text"', 'system-ui', '-apple-system', 'sans-serif'],
+        'unbounded': ['Unbounded', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },
