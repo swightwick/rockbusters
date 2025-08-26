@@ -773,7 +773,7 @@ const RockbustersQuiz = () => {
   {
     "question": "If you put that many in the post I'm surprised I didn't receive one.",
     "initials": "FC",
-    "answer": "50 Cent",
+    "answer": "Fifty Cent",
     "sound": "fifty sent",
     "series": "xfm series 2",
     "rockbusters": "28",
@@ -1254,7 +1254,7 @@ const RockbustersQuiz = () => {
   },
   {
     "question": "He's got the woolly ones, but I've got the ones that run and charge at you.",
-    "initials": "R",
+    "initials": "TR",
     "answer": "The Ramones",
     "sound": "the ram ones",
     "series": "The Ricky Gervais Show",
