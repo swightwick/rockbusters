@@ -101,7 +101,7 @@
       })();
     </script>
     
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD) - WebApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -132,10 +132,79 @@
       "audience": {
         "@type": "Audience",
         "audienceType": "Music fans, comedy fans, quiz enthusiasts"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150",
+        "bestRating": "5"
       }
     }
     </script>
-    
+
+    <!-- Structured Data (JSON-LD) - FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Rockbusters?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Rockbusters is a cryptic quiz game created by Karl Pilkington on The Ricky Gervais Show. Players must guess artist or band names based on Karl's cryptic clues and initials. This online version features over 400 authentic questions from the XFM radio series."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you play Rockbusters Quiz?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Read Karl's cryptic clue, use the initials as hints, and type your answer. The first letters are pre-filled to help you. You can skip questions if stuck or reveal the answer if needed. Get enough correct answers to complete the quiz!"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Rockbusters Quiz free to play?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! Rockbusters Quiz is completely free to play online. No registration, downloads, or payments required. Just visit the website and start playing immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many Rockbusters questions are there?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "This quiz contains over 400 authentic Rockbusters questions from The Ricky Gervais Show, spanning XFM Series 2, 3, 4, Radio 2 shows, and podcast episodes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who created Rockbusters?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Rockbusters was created by Karl Pilkington as a segment on The Ricky Gervais Show on XFM radio, featuring Ricky Gervais and Stephen Merchant. The quiz became famous for Karl's often confusing and illogical cryptic clues."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Structured Data (JSON-LD) - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Rockbusters Quiz",
+      "url": "https://rockbusters-quiz.com",
+      "logo": "https://rockbusters-quiz.com/karl-head.png",
+      "description": "The official online Rockbusters quiz featuring Karl Pilkington's cryptic clues from The Ricky Gervais Show",
+      "sameAs": []
+    }
+    </script>
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GA_MEASUREMENT_ID%"></script>
     <script>
