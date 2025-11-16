@@ -16,7 +16,7 @@ import './App.css';
 
 
 // Target number of correct answers to win - change this for debugging
-const TARGET_CORRECT_ANSWERS = 1;
+const TARGET_CORRECT_ANSWERS = 5;
 
 const RockbustersQuiz = () => {
   // Shuffle array function
@@ -78,25 +78,27 @@ const RockbustersQuiz = () => {
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizVisible, setQuizVisible] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const karlHeadRef = useRef(null);
   const inputRef = useRef(null);
   const correctModalButtonRef = useRef(null);
+  const audioRef = useRef(null);
 
-  // Lock body scroll when info modal is open
+  // Lock body scroll when info or terms modal is open
   useEffect(() => {
-    if (showInfoModal) {
+    if (showInfoModal || showTermsModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-    
+
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showInfoModal]);
+  }, [showInfoModal, showTermsModal]);
 
   // Save progress to localStorage
   const saveProgress = useCallback((questionIndex, newScore, answered, skipped, attempts) => {
@@ -494,26 +496,52 @@ const RockbustersQuiz = () => {
     }, 100);
   };
 
-  const playRandomRevealSound = () => {
+  const playRandomRevealSound = useCallback(() => {
     if (!isSoundEnabled) return;
+
+    // Stop any currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
     const sounds = ['karl-whats-that.mp3', 'karl-err.mp3', 'karl-look-at-it.mp3', 'karl-its-awkward.mp3', 'karl-who-are-you.mp3'];
     const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
     const audio = new Audio(`/sounds/reveal/${randomSound}`);
-    audio.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-  };
+    audio.volume = 1.0;
+    audioRef.current = audio;
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.log('Audio playback failed:', error);
+      });
+    }
+  }, [isSoundEnabled]);
 
 
-  const playSkipSound = () => {
+  const playSkipSound = useCallback(() => {
     if (!isSoundEnabled) return;
+
+    // Stop any currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
     const sounds = ['karl-what.mp3', 'karl-lot-words.mp3', 'karl-dont-wanna-know.mp3', 'karl-ildas-dead.mp3'];
     const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
     const audio = new Audio(`/sounds/skip/${randomSound}`);
-    audio.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-  };
+    audio.volume = 1.0;
+    audioRef.current = audio;
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.log('Audio playback failed:', error);
+      });
+    }
+  }, [isSoundEnabled]);
 
   const playWelcomeSound = () => {
     if (!isSoundEnabled) return;
@@ -583,7 +611,7 @@ const RockbustersQuiz = () => {
                 ? "Good job! You know your music!"
                 : "Not bad! The clues don't work, right?"}
             </p>
-            <p className="text-gray-600 font-medium">
+            <p className="text-gray-600 font-medium py-5 flex mx-auto border mt-6 rounded-lg text-center justify-center">
               Correct: {score} | Skipped/Revealed: {skippedQuestions.size + revealedQuestions.size}
             </p>
           </div>
@@ -668,6 +696,83 @@ const RockbustersQuiz = () => {
               className="next-button py-2 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 w-full mt-4"
             >
               {currentQuestion === questions.length - 1 ? 'See Results' : 'Next Question'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Terms Modal */}
+      {showTermsModal && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+          <div className="modal-content" style={{ maxWidth: '800px', maxHeight: '90vh', overflow: 'auto' }}>
+            <div className="text-center mb-4">
+              <h2 id="terms-title" className="text-2xl font-bold text-gray-800 mb-4">Terms and Conditions</h2>
+            </div>
+            <div className="text-left space-y-4">
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Copyright & Fair Use Notice</h3>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  This is an unofficial fan site created for entertainment purposes only. All images, audio clips,
+                  and content featuring Karl Pilkington and related to The Ricky Gervais Show, An Idiot Abroad,
+                  The Moaning of Life, and other related productions are copyright © their respective owners,
+                  including but not limited to Sky, HBO, Channel 4, and other production companies.
+                </p>
+                <p className="text-gray-700 text-sm leading-relaxed mt-2">
+                  No copyright infringement is intended. All copyrighted materials are used under fair use
+                  principles for non-commercial, educational, and entertainment purposes.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Non-Commercial Statement</h3>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  This website is a fan project with no commercial intent. This site does not generate revenue
+                  from the use of copyrighted materials. Any support received through "Buy Me a Coffee" or similar
+                  platforms goes solely toward covering hosting costs and development time, not toward profiting
+                  from copyrighted content.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Disclaimer of Affiliation</h3>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  This website is not affiliated with, endorsed by, or connected to Karl Pilkington, Ricky Gervais,
+                  Stephen Merchant, or any official entities related to their work. This is purely a fan-made tribute
+                  to the Rockbusters segment from The Ricky Gervais Show.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Takedown Policy</h3>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  If you are a copyright holder and believe that any content on this site infringes your rights,
+                  please contact us and we will promptly remove the content in question. We respect intellectual
+                  property rights and will comply with all legitimate requests.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">User-Submitted Content</h3>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  Any questions or content submitted by users to this site become part of the site's content.
+                  By submitting content, users agree that their submissions are their own original work or properly
+                  attributed material that they have the right to share.
+                </p>
+              </section>
+
+              <section className="pt-2 border-t border-gray-200">
+                <p className="text-xs text-gray-600 italic">
+                  These terms and conditions were last updated on November 16, 2025.
+                </p>
+              </section>
+            </div>
+            <hr className="mb-0 mt-6 md:hidden" />
+            <button
+              type="button"
+              onClick={() => setShowTermsModal(false)}
+              className="w-full mt-6 py-3 bg-blue-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-blue-700"
+            >
+              Close
             </button>
           </div>
         </div>
@@ -804,6 +909,15 @@ const RockbustersQuiz = () => {
           </div>
         </div>
       </>
+
+      {/* Fixed Terms Link */}
+      <button
+        type="button"
+        onClick={() => setShowTermsModal(true)}
+        className="fixed bottom-4 right-4 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 text-xs md:text-sm font-medium transition-colors z-30"
+      >
+        Terms
+      </button>
 
       {showQuiz && (
         <div className={`bg-white md:rounded-2xl md:shadow-xl md:border md:border-[#f2f2f2] p-4 md:p-16 max-w-5xl w-full h-screen md:h-full transition-opacity duration-500 ${quizVisible ? 'opacity-100' : 'opacity-0'}`}>

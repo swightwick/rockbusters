@@ -50,7 +50,7 @@ export const questions = [
   {
     "question": "How can I wash up in something shaped like that?",
     "initials": "NS",
-    "answer": "NSync",
+    "answer": "N Sync",
     "sound": "N sink",
     "series": "xfm series 2",
     "rockbusters": "2",
@@ -1341,7 +1341,7 @@ export const questions = [
   },
   {
     "question": "Sounds like these lads work for the hospital.",
-    "initials": "GP",
+    "initials": "GATP",
     "answer": "Gerry and the Pacemakers",
     "series": "Karl's Mam",
     "rockbusters": "8",
