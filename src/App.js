@@ -861,7 +861,7 @@ const RockbustersQuiz = () => {
           
           {/* Menu Items */}
           <div className="p-6 space-y-4">
-            <button 
+            <button
               type="button"
               onClick={() => {
                 setShowInfoModal(true);
@@ -872,8 +872,8 @@ const RockbustersQuiz = () => {
               <Info className="w-5 h-5 text-blue-500" />
               <span className="text-gray-800 font-medium">Info</span>
             </button>
-            
-            <button 
+
+            <button
               type="button"
               onClick={() => {
                 const newSoundState = !isSoundEnabled;
@@ -894,8 +894,20 @@ const RockbustersQuiz = () => {
                 </>
               )}
             </button>
-            
-            <button 
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowTermsModal(true);
+                setShowMenu(false);
+              }}
+              className="w-full text-left p-4 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+            >
+              <Info className="w-5 h-5 text-gray-500" />
+              <span className="text-gray-800 font-medium">Terms</span>
+            </button>
+
+            <button
               type="button"
               onClick={() => {
                 resetQuiz();
@@ -910,11 +922,11 @@ const RockbustersQuiz = () => {
         </div>
       </>
 
-      {/* Fixed Terms Link */}
+      {/* Fixed Terms Link - Desktop only */}
       <button
         type="button"
         onClick={() => setShowTermsModal(true)}
-        className="fixed bottom-4 right-4 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 text-xs md:text-sm font-medium transition-colors z-30"
+        className="hidden md:block fixed bottom-4 right-4 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg shadow-lg border border-gray-200 text-xs md:text-sm font-medium transition-colors z-30"
       >
         Terms
       </button>
@@ -989,12 +1001,12 @@ const RockbustersQuiz = () => {
         </div>
 
         {/* Merged Answer Input */}
-        <div className="mb-8 text-center">
+        <div className="mb-4 text-center">
           <div className="text-lg font-semibold text-gray-700 mb-4">
             Your Answer <b>(Initials: {currentQ?.initials}):</b>
           </div>
           <div 
-            className="inline-block mb-2 mx-auto transition-all duration-200 cursor-text hover:border-gray-400 relative"
+            className="inline-block mb-4 mx-auto transition-all duration-200 cursor-text hover:border-gray-400 relative"
             tabIndex={0}
             role="textbox"
             aria-label={`Answer input for ${currentQ?.initials} clue`}
@@ -1066,7 +1078,7 @@ const RockbustersQuiz = () => {
 
         {/* Controls */}
         {/* Mobile: skip/reveal top row, next on second row. Desktop: all in one row */}
-        <div className="flex flex-col gap-2 md:flex-row md:justify-center md:items-center md:gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:justify-center md:items-center md:gap-4">
           <div className="flex md:justify-center items-center gap-4 md:gap-4">
             <button
               onClick={skipQuestion}
@@ -1101,7 +1113,7 @@ const RockbustersQuiz = () => {
               onClick={nextQuestion}
               type="button"
               disabled={!isCurrentAnswerCorrect && !revealedAnswer}
-              className="flex items-center gap-0 px-7 py-3 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed w-full text-center justify-center"
+              className={`flex items-center gap-0 px-7 py-3 bg-indigo-600 text-white rounded-lg transition-colors font-medium cursor-pointer hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed w-full text-center justify-center ${(isCurrentAnswerCorrect || revealedAnswer) ? 'mb-4' : ''}`}
             >
               {currentQuestion === questions.length - 1 ? 'Finish' : 'Next'}
               <ChevronRight className="w-4 h-4" />
